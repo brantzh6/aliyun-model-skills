@@ -1,6 +1,6 @@
 ---
 name: aliyun-visual
-description: 阿里云百炼视觉模型全栈 API — 图像生成（千问/万相/Z-Image）+ 视频生成（HappyHorse/Wan），覆盖文生图、图像编辑、组图、文生视频、图生视频、参考生视频、视频编辑全场景。
+description: 阿里云百炼视觉模型全栈 API — 图像生成（千问/万相/Z-Image）+ 视频生成（Wan 2.7），覆盖文生图、图像编辑、组图、文生视频、图生视频、首尾帧、参考生视频全场景。2026-05 更新：HappyHorse 已废弃，视频模型全面升级为 Wan 2.7 系列。
 category: mlops
 requires:
   - DASHSCOPE_API_KEY
@@ -20,18 +20,21 @@ requires:
 ├────────────────────┬─────────────────────────────────────────┤
 │    🖼️ 图像生成      │              🎬 视频生成                  │
 ├────────────────────┼─────────────────────────────────────────┤
-│ 千问 Qwen-Image     │ HappyHorse 1.0 (最新)                   │
-│  ├ 2.0-pro (推荐)   │  ├ t2v  文生视频                        │
-│  ├ 2.0 (加速版)     │  ├ i2v  图生视频（首帧）                 │
-│  ├ max (真实感)     │  ├ r2v  参考生视频（1-9张参考图）        │
-│  └ plus (艺术风格)  │  └ video-edit 视频编辑                  │
+│ 千问 Qwen-Image     │ Wan 2.7 (2026-05 最新)                   │
+│  ├ 2.0-pro (推荐)   │  ├ wan2.7-t2v     文生视频               │
+│  ├ 2.0 (加速版)     │  ├ wan2.7-i2v     图生视频               │
+│  ├ max (真实感)     │  ├ wan2.7-r2v     参考生视频             │
+│  └ plus (艺术风格)  │  └ wan2.6-r2v-flash 轻量版              │
 │                    │                                         │
-│ 万相 Wan 2.7       │ Wan 2.7 / 2.6                           │
-│  ├ image-pro (4K)  │  ├ wan2.7-t2v  文生视频                  │
-│  └ image (快速版)   │  ├ wan2.7-i2v  图生视频（首尾帧/续写）    │
-│                    │  ├ wan2.7-videoedit 视频编辑             │
-│ Z-Image            │  └ wan2.6-r2v-flash 参考生视频           │
-│  └ z-image 文生图   │                                         │
+│ 万相 Wan 2.7       │ ⚠️ HappyHorse 1.0 已废弃                 │
+│  ├ image-pro (4K)  │  happyhorse-1.0-t2v/i2v/r2v/video-edit  │
+│  └ image (快速版)   │  → 全面迁移至 Wan 2.7 系列               │
+│                    │                                         │
+│ Z-Image            │ 🆕 Wan 2.7 新能力                        │
+│  └ z-image 文生图   │  ├ 有声视频（自动配音/自定义音频）        │
+│                    │  ├ 多镜头叙事（镜头切换+主体一致）         │
+│                    │  ├ 视频续写（首帧视频续写+尾帧控制）       │
+│                    │  └ 音色定制（为主体指定独立音色）          │
 └────────────────────┴─────────────────────────────────────────┘
 ```
 
@@ -408,145 +411,183 @@ payload = {
 
 ---
 
-## 🎬 三、视频生成
+## 🎬 三、视频生成（Wan 2.7 系列）
 
+> ⚠️ **2026-05 重大变更**：HappyHorse 1.0 系列已从官方文档移除，全面升级为 Wan 2.7 系列。
 > 完整视频创作工作流（剧本/分镜/镜头语言）请参阅 `video-studio` 技能。
 
-### 3.1 HappyHorse 1.0 全系列（最新）
+### 3.1 模型总览
 
-**通用异步调用流程：**
-```
-步骤1: POST https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis
-       Headers: X-DashScope-Async: enable（必须）
-       返回: task_id
+**通用调用方式**：同步调用 `VideoSynthesis.call()` 或异步调用 `VideoSynthesis.async_call()` + `VideoSynthesis.wait()`
 
-步骤2: GET https://dashscope.aliyuncs.com/api/v1/tasks/{task_id}
-       返回: video_url（成功后），有效期 24 小时
-```
-
-| 模型 | 模型名 | 时长 | 分辨率 | 特色 |
-|------|--------|------|--------|------|
-| 文生视频 | happyhorse-1.0-t2v | 3-15s | 720P/1080P | 物理真实、运动流畅 |
-| 图生视频 | happyhorse-1.0-i2v | 3-15s | 720P/1080P | 首帧引导，宽高比自动跟随 |
-| 参考生视频 | happyhorse-1.0-r2v | 3-15s | 720P/1080P | 1-9张参考图，characterN指代 |
-| 视频编辑 | happyhorse-1.0-video-edit | 3-15s | 720P/1080P | 风格变换、局部替换、声音控制 |
-
-#### HappyHorse 文生视频 (t2v)
-
-```bash
-curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis' \
-    -H 'X-DashScope-Async: enable' \
-    -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
-    -H 'Content-Type: application/json' \
-    -d '{
-    "model": "happyhorse-1.0-t2v",
-    "input": {
-        "prompt": "一座由硬纸板和瓶盖搭建的微型城市，在夜晚焕发出生机"
-    },
-    "parameters": {
-        "resolution": "1080P",
-        "ratio": "16:9",
-        "duration": 5,
-        "watermark": false
-    }
-}'
-```
-
-#### HappyHorse 图生视频 (i2v)
-
-```bash
-curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis' \
-    -H 'X-DashScope-Async: enable' \
-    -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
-    -H 'Content-Type: application/json' \
-    -d '{
-    "model": "happyhorse-1.0-i2v",
-    "input": {
-        "prompt": "一只猫在草地上奔跑",
-        "media": [
-            { "type": "first_frame", "url": "https://example.com/cat.jpg" }
-        ]
-    },
-    "parameters": {
-        "resolution": "1080P",
-        "duration": 5
-    }
-}'
-```
-
-#### HappyHorse 参考生视频 (r2v)
-
-```bash
-curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis' \
-    -H 'X-DashScope-Async: enable' \
-    -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
-    -H 'Content-Type: application/json' \
-    -d '{
-    "model": "happyhorse-1.0-r2v",
-    "input": {
-        "prompt": "身着红色旗袍的女性character1，轻抬玉手展开折扇character2",
-        "media": [
-            { "type": "reference_image", "url": "https://example.com/girl.jpg" },
-            { "type": "reference_image", "url": "https://example.com/fan.jpg" }
-        ]
-    },
-    "parameters": {
-        "resolution": "1080P",
-        "ratio": "16:9",
-        "duration": 5
-    }
-}'
-```
-
-#### HappyHorse 视频编辑 (video-edit)
-
-```bash
-curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis' \
-    -H 'X-DashScope-Async: enable' \
-    -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
-    -H 'Content-Type: application/json' \
-    -d '{
-    "model": "happyhorse-1.0-video-edit",
-    "input": {
-        "prompt": "让视频中的角色穿上图片中的衣服",
-        "media": [
-            { "type": "video", "url": "https://example.com/input.mp4" },
-            { "type": "reference_image", "url": "https://example.com/clothes.png" }
-        ]
-    },
-    "parameters": {
-        "resolution": "1080P",
-        "audio_setting": "origin"
-    }
-}'
-```
-
-### 3.2 Wan 2.7 / 2.6 视频模型
-
-| 模型 | 模型名 | 时长 | 分辨率 | 独有特性 |
+| 模型 | 模型名 | 时长 | 分辨率 | 核心能力 |
 |------|--------|------|--------|---------|
-| 文生视频 | wan2.7-t2v | 2-15s | 720P/1080P | 音频驱动、多镜头叙事 |
-| 图生视频 | wan2.7-i2v | 2-15s | 720P/1080P | 首尾帧控制、视频续写 |
-| 视频编辑 | wan2.7-videoedit | 2-10s | 720P/1080P | 指令式编辑 |
-| 参考生视频 | wan2.6-r2v-flash | 2-10s | 720P/1080P | 最多5个角色 |
+| 文生视频 ⭐ | wan2.7-t2v-2026-04-25 | 2-15s | 720P/1080P | 有声视频、多镜头叙事、声画同步 |
+| 文生视频 | wan2.7-t2v | 2-15s | 720P/1080P | 有声视频、多镜头叙事、声画同步 |
+| 文生视频 | wan2.6-t2v | 2-15s | 720P/1080P | 有声视频、多镜头叙事、声画同步 |
+| 文生视频 | wan2.5-t2v-preview | 5-10s | 480P/720P/1080P | 有声视频、声画同步 |
+| 图生视频 ⭐ | wan2.7-i2v-2026-04-25 | 2-15s | 720P/1080P | 首帧生视频、首尾帧、视频续写、有声 |
+| 图生视频 | wan2.7-i2v | 2-15s | 720P/1080P | 首帧生视频、首尾帧、视频续写、有声 |
+| 参考生视频 ⭐ | wan2.7-r2v | 2-10s | 720P/1080P | 多主体参考、音色定制、多宫格图、有声 |
+| 参考生视频 | wan2.6-r2v-flash | 2-10s | 720P/1080P | 单/多角色、多镜头、更快、性价比高 |
+| 参考生视频 | wan2.6-r2v | 2-10s | 720P/1080P | 单/多角色、多镜头、声画同步 |
+| 无声视频 | wan2.2-t2v-plus | 5s | 480P/1080P | 纯视觉展示、稳定性高 |
+| 无声视频 | wanx2.1-t2v-turbo | 5s | 480P/720P | 轻量快速 |
 
-### 3.3 图像 → 视频 串联工作流
+> ⚠️ **SDK 版本要求**：DashScope Python SDK ≥ 1.25.16
+> ⚠️ **URL 有效期**：所有视频 URL 仅保留 **24 小时**，请及时下载。
+> ⚠️ **地域隔离**：北京和新加坡地域拥有独立的 API Key 与请求地址，不可混用。
+
+---
+
+### 3.2 文生视频 (t2v)
+
+**官方文档**: https://help.aliyun.com/zh/model-studio/text-to-video-guide
+
+```python
+from http import HTTPStatus
+from dashscope import VideoSynthesis
+import dashscope, os
+
+dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
+api_key = os.getenv("DASHSCOPE_API_KEY")
+
+rsp = VideoSynthesis.call(
+    api_key=api_key,
+    model='wan2.7-t2v-2026-04-25',  # 推荐模型
+    prompt='第1个镜头 大远景开篇，镜头从接近地面的低机位开始向前移动...',
+    resolution="720P",
+    ratio="16:9",
+    duration=15,
+    prompt_extend=True,
+    watermark=False
+)
+if rsp.status_code == HTTPStatus.OK:
+    print("video_url:", rsp.output.video_url)
+```
+
+**核心能力**：
+- **多镜头叙事**：wan2.7/2.6 支持，prompt 中用自然语言描述镜头结构（如 `第1个镜头[0-2秒]...`）
+- **有声视频**：默认自动配音，或传入 `audio_url` 实现声画同步
+- **无声视频**：wan2.2 及以下版本默认无声
+
+---
+
+### 3.3 图生视频 (i2v)
+
+**官方文档**: https://help.aliyun.com/zh/model-studio/wan-image-to-video-guide
+
+支持三种任务：首帧生视频、首尾帧生视频、视频续写
+
+```python
+from dashscope import VideoSynthesis
+import dashscope, os
+
+dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
+api_key = os.getenv("DASHSCOPE_API_KEY")
+
+# 场景一：首帧生视频
+media = [{"type": "first_frame", "url": "https://example.com/first.jpg"}]
+
+# 场景二：首尾帧生视频
+media = [
+    {"type": "first_frame", "url": "https://example.com/first.jpg"},
+    {"type": "last_frame", "url": "https://example.com/last.jpg"}
+]
+
+# 场景三：视频续写（首视频+尾帧）
+media = [
+    {"type": "first_clip", "url": "https://example.com/clip.mp4"},
+    {"type": "last_frame", "url": "https://example.com/last.jpg"}
+]
+
+rsp = VideoSynthesis.call(
+    api_key=api_key,
+    model="wan2.7-i2v-2026-04-25",
+    media=media,
+    resolution="720P",
+    duration=10,
+    prompt="一只猫从画面左侧慢慢走向右侧..."
+)
+```
+
+---
+
+### 3.4 参考生视频 (r2v)
+
+**官方文档**: https://help.aliyun.com/zh/model-studio/video-reference-api-reference
+
+支持多主体参考 + 音色定制 + 多宫格图
+
+```python
+from dashscope import VideoSynthesis
+import dashscope, os
+
+dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
+api_key = os.getenv("DASHSCOPE_API_KEY")
+
+# 多主体参考 + 音色定制
+media = [
+    {
+        "type": "reference_image",
+        "url": "https://example.com/girl.jpg",
+        "reference_voice": "https://example.com/girl_voice.mp3"  # 为该主体指定音色
+    },
+    {
+        "type": "reference_video",
+        "url": "https://example.com/boy.mp4",
+        "reference_voice": "https://example.com/boy_voice.mp3"
+    },
+    {"type": "reference_image", "url": "https://example.com/object.png"},
+    {"type": "reference_image", "url": "https://example.com/background.png"}
+]
+
+rsp = VideoSynthesis.call(
+    api_key=api_key,
+    model="wan2.7-r2v",
+    media=media,
+    resolution="720P",
+    ratio="16:9",
+    duration=10,
+    prompt="视频1抱着图2，在图3的椅子上弹奏一支舒缓的乡村民谣..."
+)
+```
+
+**指代规则**：
+- 使用"图1、图2"指代 reference_image
+- 使用"视频1、视频2"指代 reference_video
+- 按 media 数组顺序，图和视频分别计数
+
+---
+
+### 3.5 旧 HappyHorse 迁移指南
+
+| 旧模型 | 新模型 | 变更说明 |
+|--------|--------|---------|
+| happyhorse-1.0-t2v | wan2.7-t2v-2026-04-25 | 支持有声、多镜头 |
+| happyhorse-1.0-i2v | wan2.7-i2v-2026-04-25 | 新增首尾帧、续写 |
+| happyhorse-1.0-r2v | wan2.7-r2v | 新增音色定制、多宫格图 |
+| happyhorse-1.0-video-edit | 暂无对应 | 可用 i2v 视频续写替代 |
+
+**API 调用变更**：
+- 旧：`POST /api/v1/services/aigc/video-generation/video-synthesis` + `X-DashScope-Async: enable`
+- 新：SDK `VideoSynthesis.call()` / `async_call()`（底层仍异步，但 SDK 封装更简洁）
+- curl 调用仍需 `X-DashScope-Async: enable`
+
+### 3.6 图像 → 视频 串联工作流
 
 ```
 步骤1: 万相 2.7 / 千问图像 → 生成高质量首帧参考图
-       POST /services/aigc/multimodal-generation/generation
        模型: wan2.7-image-pro / qwen-image-2.0-pro
        ↓ 保存生成的 PNG 图像
 
-步骤2: HappyHorse i2v → 首帧驱动生成视频
-       POST /services/aigc/video-generation/video-synthesis
-       模型: happyhorse-1.0-i2v
-       media: [{ "type": "first_frame", "url": "步骤1生成的图片URL" }]
-       ↓ 获得 MP4 视频
+步骤2: Wan 2.7 i2v → 首帧驱动生成视频
+       模型: wan2.7-i2v-2026-04-25
+       media: [{"type": "first_frame", "url": "步骤1生成的图片URL"}]
+       ↓ 获得 MP4 视频（可含音频）
 
-步骤3（可选）: HappyHorse video-edit → 视频精修
-       POST /services/aigc/video-generation/video-synthesis
-       模型: happyhorse-1.0-video-edit
+步骤3（可选）: Wan 2.7 i2v → 视频续写
+       media: [{"type": "first_clip", "url": "步骤2视频URL"}, {"type": "last_frame", "url": "新尾帧"}]
 ```
 
 ---
@@ -623,20 +664,16 @@ rsp = ImageGeneration.call(
 
 ## ⚠️ 四、注意事项与常见坑
 
-### 图像生成
-1. **千问图像编辑**：使用独立的图像编辑 API，不是文生图接口
-2. **万相 2.7 4K 限制**：仅 `wan2.7-image-pro` 的文生图场景支持 4K，编辑和组图最高 2K
-3. **PNG 不支持透明**：万相 2.7 不接受带透明通道的 PNG
-4. **Prompt 截断**：千问最长 800 字符，万相 2.7 最长 5000 字符
-5. **组图 n 参数**：关闭组图时 n=1-4，开启组图时 n=1-12（最大数量，实际由模型决定）
-
-### 视频生成
-1. **HappyHorse 异步调用**：必须设置 `X-DashScope-Async: enable`，否则报错
-2. **HappyHorse i2v 宽高比**：自动跟随首帧，不支持 ratio 参数
-3. **HappyHorse r2v 指代**：character1 对应 media[0]，最多 9 张参考图
-4. **HappyHorse video-edit 时长**：输入≤15s 则输出一致，输入>15s 截取前 15s
-5. **URL 24 小时过期**：所有结果 URL 请及时下载转存 OSS
-6. **跨地域调用失败**：模型、Endpoint、API Key 必须同地域
+### 视频生成（Wan 2.7）
+1. **HappyHorse 已废弃**：happyhorse-1.0 系列已从官方文档移除，全面迁移至 Wan 2.7
+2. **SDK 版本**：必须 ≥ 1.25.16，否则可能报 "url error" 错误
+3. **有声视频**：wan2.7/2.6/2.5 默认自动配音，也可传入 `audio_url` 自定义音频
+4. **多镜头叙事**：wan2.7 在 prompt 中用自然语言描述镜头（如 `第1个镜头[0-2秒]...`），无需额外参数
+5. **视频续写**：使用 `first_clip` + `last_frame` 类型组合
+6. **音色定制**：r2v 模型支持为每个主体指定 `reference_voice`
+7. **多宫格图**：wan2.7-r2v 支持传入多宫格图（故事板），自动识别多镜头
+8. **URL 24 小时过期**：所有结果 URL 请及时下载转存 OSS
+9. **跨地域调用失败**：模型、Endpoint、API Key 必须同地域
 
 ---
 
@@ -661,7 +698,8 @@ rsp = ImageGeneration.call(
 | 文生视频 | https://help.aliyun.com/zh/model-studio/text-to-video-guide | 🆕 2026-05 |
 | 图生视频 | https://help.aliyun.com/zh/model-studio/wan-image-to-video-guide | 🆕 2026-05 |
 | 图生视频-首尾帧 | https://help.aliyun.com/zh/model-studio/image-to-video-first-and-last-frames-guide | 🆕 2026-05 |
-| HappyHorse-文生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-text-to-video-api-reference | 有效 |
-| HappyHorse-图生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-image-to-video-api-reference | 有效 |
-| HappyHorse-参考生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-reference-to-video-api-reference | 有效 |
-| HappyHorse-视频编辑 | https://help.aliyun.com/zh/model-studio/happyhorse-video-edit-api-reference | 有效 |
+| 参考生视频 | https://help.aliyun.com/zh/model-studio/video-to-video-guide | 🆕 2026-05 |
+| ~~HappyHorse-文生视频~~ | ~~happyhorse-text-to-video-api-reference~~ | ❌ 已废弃，迁至 Wan 2.7 |
+| ~~HappyHorse-图生视频~~ | ~~happyhorse-image-to-video-api-reference~~ | ❌ 已废弃，迁至 Wan 2.7 |
+| ~~HappyHorse-参考生视频~~ | ~~happyhorse-reference-to-video-api-reference~~ | ❌ 已废弃，迁至 Wan 2.7 |
+| ~~HappyHorse-视频编辑~~ | ~~happyhorse-video-edit-api-reference~~ | ❌ 已废弃，无直接替代 |
