@@ -315,11 +315,104 @@ curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-
 
 ---
 
-## 🎬 二、视频生成
+## 👁️ 二、视频理解（Qwen-VL）
+
+> Qwen-VL 多模态模型支持 **图像理解 + 视频理解**，可直接传入视频文件进行内容分析。
+
+### 2.1 模型选型
+
+| 模型 | 能力 | 说明 |
+|------|------|------|
+| **qwen-vl-max** ⭐ | 图像理解 + 视频理解 | 最强理解能力，适合复杂分析任务 |
+| **qwen-vl-plus** | 图像理解 + 视频理解 | 均衡版，速度快 |
+| **qwen-vl-ocr** | 文字提取 | 专注 OCR 场景 |
+
+**端点：** `POST https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation`
+
+> ⚠️ **必须用标准端点 `dashscope.aliyuncs.com`，不能用 `coding.dashscope.aliyuncs.com`**（coding 端点不支持 VL 模型）。
+
+### 2.2 视频理解 API 调用
+
+```python
+import base64, json, httpx
+
+API_KEY = "sk-xxxx"  # 你的 DashScope API Key
+video_path = "/path/to/video.mp4"
+
+# 读取视频并 Base64 编码
+with open(video_path, 'rb') as f:
+    video_b64 = base64.b64encode(f.read()).decode('utf-8')
+
+url = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation'
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': f'Bearer {API_KEY}'
+}
+
+payload = {
+    'model': 'qwen-vl-max',
+    'input': {
+        'messages': [{
+            'role': 'user',
+            'content': [
+                {'video': f'data:video/mp4;base64,{video_b64}'},
+                {'text': '请描述这段视频的内容。'}
+            ]
+        }]
+    },
+    'parameters': {'max_tokens': 2000}
+}
+
+resp = httpx.post(url, headers=headers, json=payload, timeout=120)
+result = resp.json()
+```
+
+### 2.3 视频输入方式
+
+| 方式 | 格式 | 说明 |
+|------|------|------|
+| **Base64** | `data:video/mp4;base64,{base64}` | ✅ 推荐，本地文件用此方式 |
+| **公网 URL** | `https://example.com/video.mp4` | ✅ 支持 |
+| **file:// 本地路径** | `file:///path/to/video.mp4` | ❌ **不支持**，会返回 InvalidParameter 错误 |
+
+> ⚠️ **关键坑**：`file://` 路径对图像有效，但对视频会报错 `InvalidParameter: The provided URL does not appear to be valid`。视频必须用 Base64 或公网 URL。
+
+### 2.4 视频限制
+
+| 限制 | 值 |
+|------|------|
+| 最大文件大小 | ~100MB（建议 ≤10MB 以获得更快响应） |
+| 支持格式 | MP4 / AVI / MOV / MKV / FLV / WEBM |
+| 最大时长 | 取决于文件大小和模型处理时间 |
+| 响应时间 | 5MB 视频约 30-40 秒 |
+
+### 2.5 图像理解（同样适用于 VL 模型）
+
+```python
+payload = {
+    'model': 'qwen-vl-max',
+    'input': {
+        'messages': [{
+            'role': 'user',
+            'content': [
+                {'image': 'https://example.com/photo.jpg'},  # URL 或 Base64
+                {'text': '这张图片里有什么？'}
+            ]
+        }]
+    },
+    'parameters': {'max_tokens': 2000}
+}
+```
+
+> 💡 图像也支持 `file://` 本地路径，但视频不行。
+
+---
+
+## 🎬 三、视频生成
 
 > 完整视频创作工作流（剧本/分镜/镜头语言）请参阅 `video-studio` 技能。
 
-### 2.1 HappyHorse 1.0 全系列（最新）
+### 3.1 HappyHorse 1.0 全系列（最新）
 
 **通用异步调用流程：**
 ```
@@ -428,7 +521,7 @@ curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-gener
 }'
 ```
 
-### 2.2 Wan 2.7 / 2.6 视频模型
+### 3.2 Wan 2.7 / 2.6 视频模型
 
 | 模型 | 模型名 | 时长 | 分辨率 | 独有特性 |
 |------|--------|------|--------|---------|
@@ -437,7 +530,7 @@ curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-gener
 | 视频编辑 | wan2.7-videoedit | 2-10s | 720P/1080P | 指令式编辑 |
 | 参考生视频 | wan2.6-r2v-flash | 2-10s | 720P/1080P | 最多5个角色 |
 
-### 2.3 图像 → 视频 串联工作流
+### 3.3 图像 → 视频 串联工作流
 
 ```
 步骤1: 万相 2.7 / 千问图像 → 生成高质量首帧参考图
@@ -458,9 +551,9 @@ curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-gener
 
 ---
 
-## 🔧 三、通用规范
+## 🔧 四、通用规范
 
-### 3.1 地域对照
+### 4.1 地域对照
 
 | 地域 | Endpoint URL | 说明 |
 |------|-------------|------|
@@ -469,7 +562,7 @@ curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/video-gener
 
 > ⚠️ API Key、Endpoint URL、模型必须属于同一地域，不可混用。
 
-### 3.2 异步任务管理
+### 4.2 异步任务管理
 
 ```bash
 # 查询任务
@@ -549,14 +642,26 @@ rsp = ImageGeneration.call(
 
 ## 📚 五、官方文档参考
 
-| 模块 | 文档链接 |
-|------|---------|
-| 千问-文生图 | https://help.aliyun.com/zh/model-studio/qwen-image-api |
-| 千问-图像编辑 | https://help.aliyun.com/zh/model-studio/qwen-image-edit-api |
-| 万相-图像生成与编辑2.7 | https://help.aliyun.com/zh/model-studio/wan-image-generation-and-editing-api-reference |
-| 万相-图像生成与编辑2.6 | https://help.aliyun.com/zh/model-studio/wan-image-generation-api-reference |
-| Z-Image 文生图 | https://help.aliyun.com/zh/model-studio/z-image-api-reference |
-| HappyHorse-文生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-text-to-video-api-reference |
-| HappyHorse-图生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-image-to-video-api-reference |
-| HappyHorse-参考生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-reference-to-video-api-reference |
-| HappyHorse-视频编辑 | https://help.aliyun.com/zh/model-studio/happyhorse-video-edit-api-reference |
+| 模块 | 文档链接 | 状态 |
+|------|---------|------|
+| 图片生成与编辑（总入口） | https://help.aliyun.com/zh/model-studio/image-model/ | 🆕 2026-05 重组 |
+| 千问-文生图 | https://help.aliyun.com/zh/model-studio/text-to-image | 有效 |
+| 千问-图像编辑 | https://help.aliyun.com/zh/model-studio/qwen-image-edit-api | 有效 |
+| 万相-图像生成与编辑2.7 | https://help.aliyun.com/zh/model-studio/wan-image-generation-and-editing-api-reference | 有效 |
+| 万相-图像生成与编辑2.6 | https://help.aliyun.com/zh/model-studio/wan-image-generation-api-reference | 有效 |
+| Z-Image 文生图 | https://help.aliyun.com/zh/model-studio/z-image-api-reference | 有效 |
+| 人像风格重绘 | https://help.aliyun.com/zh/model-studio/style-repaint | 🆕 2026-05 |
+| 图像背景生成 | https://help.aliyun.com/zh/model-studio/image-background-generation | 🆕 2026-05 |
+| 图像画面扩展 | https://help.aliyun.com/zh/model-studio/image-expansion | 🆕 2026-05 |
+| 虚拟模特生成 | https://help.aliyun.com/zh/model-studio/virtual-model-generation | 🆕 2026-05 |
+| 创意海报生成 | https://help.aliyun.com/zh/model-studio/creative-poster-generation-overview | 🆕 2026-05 |
+| 图像局部重绘 | https://help.aliyun.com/zh/model-studio/vary-region | 🆕 2026-05 |
+| 涂鸦作画 | https://help.aliyun.com/zh/model-studio/sketch-to-image | 🆕 2026-05 |
+| 视频生成与编辑（总入口） | https://help.aliyun.com/zh/model-studio/video-generate-edit-model/ | 🆕 2026-05 重组 |
+| 文生视频 | https://help.aliyun.com/zh/model-studio/text-to-video-guide | 🆕 2026-05 |
+| 图生视频 | https://help.aliyun.com/zh/model-studio/wan-image-to-video-guide | 🆕 2026-05 |
+| 图生视频-首尾帧 | https://help.aliyun.com/zh/model-studio/image-to-video-first-and-last-frames-guide | 🆕 2026-05 |
+| HappyHorse-文生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-text-to-video-api-reference | 有效 |
+| HappyHorse-图生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-image-to-video-api-reference | 有效 |
+| HappyHorse-参考生视频 | https://help.aliyun.com/zh/model-studio/happyhorse-reference-to-video-api-reference | 有效 |
+| HappyHorse-视频编辑 | https://help.aliyun.com/zh/model-studio/happyhorse-video-edit-api-reference | 有效 |
