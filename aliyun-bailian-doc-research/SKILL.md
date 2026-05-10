@@ -15,8 +15,8 @@ metadata:
 
 # 阿里云百炼文档研究 — 抓取与更新指南
 
-**版本**: v4.3
-**更新时间**: 2026-05-08
+**版本**: v4.4
+**更新时间**: 2026-05-12
 **适用场景**: 抓取阿里云百炼平台最新文档，生成结构化的本地 SKILL.md 文档
 
 ---
@@ -186,6 +186,9 @@ web_fetch(url="https://help.aliyun.com/zh/model-studio/virtual-model-generation"
 web_fetch(url="https://help.aliyun.com/zh/model-studio/creative-poster-generation-overview", maxChars=15000)  # 🆕 创意海报
 web_fetch(url="https://help.aliyun.com/zh/model-studio/vary-region", maxChars=15000)             # 🆕 局部重绘
 web_fetch(url="https://help.aliyun.com/zh/model-studio/sketch-to-image", maxChars=15000)         # 🆕 涂鸦作画
+web_fetch(url="https://help.aliyun.com/zh/model-studio/shoes-and-boots-model", maxChars=15000)   # 🆕 鞋靴模特
+web_fetch(url="https://help.aliyun.com/zh/model-studio/image-instance-segmentation", maxChars=15000)  # 🆕 人物实例分割
+web_fetch(url="https://help.aliyun.com/zh/model-studio/image-erasure-and-completion", maxChars=15000)  # 🆕 图像擦除补全
 
 # 视频生成与编辑（已重组为 video-generate-edit-model/ 下的多个子页面）
 web_fetch(url="https://help.aliyun.com/zh/model-studio/video-generate-edit-model/", maxChars=20000)
@@ -195,6 +198,10 @@ web_fetch(url="https://help.aliyun.com/zh/model-studio/image-to-video-first-and-
 web_fetch(url="https://help.aliyun.com/zh/model-studio/video-to-video-guide", maxChars=20000)       # 参考生视频 (Wan 2.7)
 # ⚠️ 双导航陷阱：video-generate-edit-model/ (用户指南) 只展示 Wan 2.7 ≠ HappyHorse 已废弃
 # 必须通过 API 参考侧边栏 /zh/model-studio/get-api-key 确认 HappyHorse 是否仍在
+
+# 🆕 角色动画（新增类别）
+web_fetch(url="https://help.aliyun.com/zh/model-studio/wan-animate-move", maxChars=15000)           # 🆕 动作迁移
+web_fetch(url="https://help.aliyun.com/zh/model-studio/wan-animate-mix", maxChars=15000)            # 🆕 视频角色替换
 
 # 3D模型生成 🆕
 web_fetch(url="https://help.aliyun.com/zh/model-studio/tripo-3d-generation-guide", maxChars=15000)
@@ -333,18 +340,18 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 
 ---
 
-## 📊 当前文档状态（2026-05-08）
+## 📊 当前文档状态（2026-05-12）
 
 | 类别 | 文件数 | 状态 | 来源 |
 |------|--------|------|------|
 | language-models | 8 | ✅ | text-generation-model/, deep-thinking, context-cache, stream, structured-output, partial-mode, batch-inference |
-| video-generation | 22 | ✅ | video-generate-edit-model/, Wan 2.7 API, **HappyHorse 1.0 全系列** |
-| image-generation | 16 | ✅ | image-model/, **style-repaint, background-generation, image-expansion, virtual-model, creative-poster, vary-region, sketch-to-image** |
+| video-generation | 22 | ✅ | video-generate-edit-model/, Wan 2.7/2.6/2.5/2.2 API, **HappyHorse 1.0 全系列** |
+| image-generation | 19 | ✅ | image-model/, **style-repaint, background-generation, image-expansion, virtual-model, creative-poster, vary-region, sketch-to-image, shoes-and-boots, instance-segmentation, erasure-completion** |
 | tts | 2 | ✅ | tts-model/ |
 | asr | 2 | ✅ | asr-model/ |
-| s2s | 2 | ✅ 🆕 | s2s-model/ (Qwen3.5-Omni, Qwen3-Omni, Livetranslate) |
-| music | 2 | ✅ 🆕 | fun-music |
-| 3d-generation | 2 | ✅ 🆕 | tripo-3d-generation-guide |
+| s2s | 2 | ✅ | s2s-model/ (Qwen3.5-Omni, Qwen3-Omni, Livetranslate) |
+| music | 2 | ✅ | fun-music |
+| 3d-generation | 2 | ✅ | tripo-3d-generation-guide |
 | embedding | 4 | ✅ | embedding-rerank-model/, embedding, rerank |
 | vision | 4 | ✅ | vision-model/, vision, qwen-vl-ocr, visual-reasoning |
 | tool-calls | 2 | ✅ | tool-calls, function-calling |
@@ -353,7 +360,20 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 | error-codes | 2 | ✅ | error-code |
 | finetuning | 1 | ⚠️ 部分 | wan-video-generation-finetune-guide |
 
-**总计：约 74+ 个文件**
+**总计：约 80+ 个文件**
+
+### 🆕 v4.4 变更（2026-05-12）
+
+| 变更类型 | 内容 | 说明 |
+|---------|------|------|
+| 🆕 视频生成 Wan 2.6 | wan2.6-t2v/i2v/r2v 系列 | 完整 Wan 2.6 系列（含 flash 加速版、美国地域版） |
+| 🆕 视频生成 Wan 2.5 | wan2.5-t2v-preview/i2v-preview | Wan 2.5 Preview 版，支持 480P/720P/1080P |
+| 🆕 角色动画 | wan2.2-animate-move/mix | 动作迁移到静态人物、视频中替换人物 |
+| 🆕 视频编辑 | wan2.7-videoedit | 特效复刻、运镜复刻 |
+| 🆕 图像编辑 | shoes-and-boots-model | 鞋靴模特生成 |
+| 🆕 图像编辑 | image-instance-segmentation | 人物实例分割 |
+| 🆕 图像编辑 | image-erasure-and-completion | 图像擦除补全 |
+| 🆕 客户端 | kilo-cli | Kilo CLI 接入文档 |
 
 ### 🆕 v4.1 变更（2026-05-08）
 
@@ -395,6 +415,17 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 ---
 
 ## 🔧 实战经验（从实际更新中积累）
+
+### 2026-05-12 周更发现
+
+1. **Wan 2.6 完整系列上线**：wan2.6-t2v、wan2.6-i2v、wan2.6-i2v-flash（快速版）、wan2.6-r2v、wan2.6-r2v-flash，以及美国地域版 wan2.6-t2v-us、wan2.6-i2v-us。全部支持音频同步和多镜头叙事。
+2. **Wan 2.5 Preview**：wan2.5-t2v-preview 和 wan2.5-i2v-preview，支持 480P/720P/1080P，5秒/10秒时长。
+3. **角色动画新类别**：wan2.2-animate-move（动作迁移到静态人物，720P，2-30秒）、wan2.2-animate-mix（视频中替换人物），支持 wan-std（快速低成本）和 wan-pro（接近真实拍摄）两种模式。
+4. **Wan 2.7 视频编辑**：wan2.7-videoedit 支持特效复刻和运镜复刻，最长10秒。
+5. **图像编辑新增 3 个子页面**：shoes-and-boots-model（鞋靴模特）、image-instance-segmentation（人物实例分割）、image-erasure-and-completion（图像擦除补全）。
+6. **客户端工具新增 Kilo CLI**：在接入客户端列表中增加了 kilo-cli。
+7. **Wan 2.1 标记为"推荐使用Wan 2.7"**：官方开始引导迁移。
+8. **模型列表扩展**：视频生成页面现在包含 HappyHorse 1.0 → Wan 2.7 → Wan 2.6 → Wan 2.5 → Wan 2.2 → Wan 2.1 六个世代。
 
 ### 2026-05-08 全面更新发现
 
