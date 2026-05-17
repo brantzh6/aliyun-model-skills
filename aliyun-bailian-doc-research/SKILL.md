@@ -15,8 +15,8 @@ metadata:
 
 # 阿里云百炼文档研究 — 抓取与更新指南
 
-**版本**: v4.4
-**更新时间**: 2026-05-12
+**版本**: v4.5
+**更新时间**: 2026-05-18
 **适用场景**: 抓取阿里云百炼平台最新文档，生成结构化的本地 SKILL.md 文档
 
 ---
@@ -212,7 +212,19 @@ web_fetch(url="https://help.aliyun.com/zh/model-studio/wan-video-generation-fine
 # 🆕 客户端接入文档
 web_fetch(url="https://help.aliyun.com/zh/model-studio/openclaw", maxChars=10000)
 web_fetch(url="https://help.aliyun.com/zh/model-studio/hermes-agent", maxChars=10000)
-web_fetch(url="https://help.aliyun.com/zh/model-studio/lingma-agent", maxChars=10000)  # 🆕 Lingma
+web_fetch(url="https://help.aliyun.com/zh/model-studio/claude-code", maxChars=10000)     # 🆕 Claude Code
+web_fetch(url="https://help.aliyun.com/zh/model-studio/opencode", maxChars=10000)        # 🆕 OpenCode
+web_fetch(url="https://help.aliyun.com/zh/model-studio/cursor", maxChars=10000)          # 🆕 Cursor
+web_fetch(url="https://help.aliyun.com/zh/model-studio/codex", maxChars=10000)           # 🆕 Codex
+web_fetch(url="https://help.aliyun.com/zh/model-studio/qwen-code", maxChars=10000)       # 🆕 Qwen Code
+web_fetch(url="https://help.aliyun.com/zh/model-studio/cherry-studio", maxChars=10000)   # 🆕 Cherry Studio
+web_fetch(url="https://help.aliyun.com/zh/model-studio/chatbox", maxChars=10000)         # 🆕 Chatbox
+web_fetch(url="https://help.aliyun.com/zh/model-studio/cline", maxChars=10000)           # 🆕 Cline
+web_fetch(url="https://help.aliyun.com/zh/model-studio/qoder-agent", maxChars=10000)     # 🆕 Qoder
+web_fetch(url="https://help.aliyun.com/zh/model-studio/lingma-agent", maxChars=10000)    # 🆕 Lingma
+web_fetch(url="https://help.aliyun.com/zh/model-studio/kilo-cli", maxChars=10000)        # 🆕 Kilo CLI
+web_fetch(url="https://help.aliyun.com/zh/model-studio/first-call-to-image-and-video-api", maxChars=10000)  # 🆕 Postman
+web_fetch(url="https://help.aliyun.com/zh/model-studio/dify", maxChars=10000)            # 🆕 Dify
 ```
 
 ### 第 2 步：提取关键信息
@@ -359,8 +371,30 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 | rate-limit | 2 | ✅ | rate-limit |
 | error-codes | 2 | ✅ | error-code |
 | finetuning | 1 | ⚠️ 部分 | wan-video-generation-finetune-guide |
+| omni | 1 | ✅ | omni/（全模态）|
 
-**总计：约 80+ 个文件**
+**总计：约 95+ 个文件**
+
+### 🆕 v4.5 变更（2026-05-18）
+
+| 变更类型 | 内容 | 说明 |
+|---------|------|------|
+| 🆕 客户端工具 | Claude Code | Claude Code 接入文档 |
+| 🆕 客户端工具 | OpenCode | OpenCode 接入文档 |
+| 🆕 客户端工具 | Cursor | Cursor 接入文档 |
+| 🆕 客户端工具 | Codex | Codex 接入文档 |
+| 🆕 客户端工具 | Qwen Code | Qwen Code 接入文档 |
+| 🆕 客户端工具 | Cherry Studio | Cherry Studio 接入文档 |
+| 🆕 客户端工具 | Chatbox | Chatbox 接入文档 |
+| 🆕 客户端工具 | Cline | Cline 接入文档 |
+| 🆕 客户端工具 | Qoder | Qoder Agent 接入文档 |
+| 🆕 客户端工具 | Postman | Postman 图文视频 API 首次调用 |
+| 🆕 客户端工具 | Dify | Dify 接入文档 |
+| 🆕 图像模型 | z-image-turbo | 新增快速版 Z-Image 模型 |
+| 🆕 图像模型 | wan2.6-t2i/image | Wan 2.6 图像生成模型 |
+| 🆕 图像模型 | wan2.5-t2i/i2i-preview | Wan 2.5 图像预览模型 |
+| 🆕 图像模型 | wan2.2/2.1-t2i | Wan 2.2/2.1 图像模型（旧版） |
+| 🆕 导航 | 全模态 | omni/ 新入口页面 |
 
 ### 🆕 v4.4 变更（2026-05-12）
 

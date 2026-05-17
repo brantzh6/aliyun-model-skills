@@ -30,8 +30,13 @@ requires:
 │  ├ image-pro (4K)  │  ├ wan2.7-t2v  文生视频                  │
 │  └ image (快速版)   │  ├ wan2.7-i2v  图生视频（首尾帧/续写）    │
 │                    │  ├ wan2.7-r2v  参考生视频                │
-│ Z-Image            │  └ wan2.7-videoedit 视频编辑             │
-│  └ z-image 文生图   │                                         │
+│                    │  └ wan2.7-videoedit 视频编辑             │
+│ Z-Image            │                                         │
+│  ├ z-image 文生图   │ 🆕 Wan 图像模型 (额外)                   │
+│  └ z-image-turbo   │  ├ wan2.6-t2i/image (1440px)            │
+│    (快速版/低成本)  │  ├ wan2.5-t2i/i2i-preview               │
+│                    │  └ wan2.2/2.1-t2i (旧版)               │
+│                    │                                         │
 │                    │ 🆕 Wan 2.6 视频模型                       │
 │                    │  ├ wan2.6-t2v/i2v/r2v                    │
 │                    │  └ wan2.6-*-flash (快速版)               │
@@ -57,6 +62,9 @@ requires:
 | **千问 max** | qwen-image-max | 1664×928 | 真实感强，AI合成痕迹低 | ❌ | ✅ 单独API | - |
 | **千问 plus** | qwen-image-plus | 1664×928 | 多样化艺术风格 | ❌ | ✅ 单独API | ⭐⭐ |
 | **Z-Image** | z-image | 多种比例 | 轻量快速 | ❌ | ❌ | ⭐ |
+| **Z-Image Turbo** ⭐ | z-image-turbo | 2048×2048 | 快速低成本，写实人像 | ❌ | ❌ | ⭐ |
+
+> ⚠️ **新增 Wan 图像模型**：wan2.6-t2i/image (1440×1440), wan2.5-t2i/i2i-preview (预览版), wan2.2/2.1-t2i (旧版)。详见下方 Wan 图像模型补充。
 
 > ⚠️ **地域隔离**：北京和新加坡地域拥有独立的 API Key 与请求地址，不可混用。
 > ⚠️ **URL/结果有效期**：所有图像和视频 URL 均仅保留 **24 小时**，请及时下载。
@@ -268,6 +276,24 @@ curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-
 - 大小：≤ 20MB
 - 数量：0-9 张
 
+### 1.3.1 🆕 Wan 图像模型补充（wan2.6/2.5/2.2/2.1）
+
+> 以下模型为 Wan 系列额外提供的图像生成模型，API 端点与 Wan 2.7 相同。
+
+| 模型 ID | 文生图 | 图像编辑 | 最大输出 | 最大分辨率 |
+|---------|--------|---------|---------|-----------|
+| wan2.6-t2i | ✅ | ✅ | 4 | 1440×1440 |
+| wan2.6-image | ✅ | ✅ | 4 | 1440×1440 |
+| wan2.5-t2i-preview | ✅ | ❌ | 4 | 1440×1440 |
+| wan2.5-i2i-preview | ❌ | ✅ | 4 | 1280×1280 |
+| wan2.2-t2i-plus | ✅ | ❌ | 4 | 1440×1440 |
+| wan2.2-t2i-flash | ✅ | ❌ | 4 | 1440×1440 |
+| wan2.1-t2i-plus | ✅ | ❌ | 4 | 1440×1440 |
+| wan2.1-t2i-turbo | ✅ | ❌ | 4 | 1440×1440 |
+| wanx2.1-imageedit | ❌ | ✅ | 1 | 1024×1024 |
+
+> ⚠️ wanx2.1-imageedit 仅支持北京地域。
+
 ---
 
 ### 1.4 Z-Image 文生图
@@ -299,6 +325,43 @@ curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-
 ```
 
 **Z-Image 特点：** 轻量模型，生成速度快，适合快速预览和草稿。
+
+---
+
+### 1.4.1 Z-Image Turbo 文生图
+
+**端点：** `POST https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation`
+
+```bash
+curl --location 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation' \
+--header 'Content-Type: application/json' \
+--header "Authorization: Bearer $DASHSCOPE_API_KEY" \
+--data '{
+    "model": "z-image-turbo",
+    "input": {
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {"text": "一只坐着的橘黄色的猫，表情愉悦，活泼可爱，逼真准确"}
+                ]
+            }
+        ]
+    },
+    "parameters": {
+        "size": "1024*1024",
+        "n": 1,
+        "watermark": false
+    }
+}'
+```
+
+**Z-Image Turbo 特点：**
+- 生成速度比 z-image 快约 10 倍
+- 价格约为 z-image 的 1/5
+- 最大分辨率 2048×2048
+- 适合写实人像和产品照片
+- **不支持图像编辑**，仅支持文生图
 
 ---
 
