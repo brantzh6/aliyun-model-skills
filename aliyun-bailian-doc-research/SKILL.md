@@ -15,8 +15,8 @@ metadata:
 
 # 阿里云百炼文档研究 — 抓取与更新指南
 
-**版本**: v4.5
-**更新时间**: 2026-05-18
+**版本**: v4.6
+**更新时间**: 2026-05-25
 **适用场景**: 抓取阿里云百炼平台最新文档，生成结构化的本地 SKILL.md 文档
 
 ---
@@ -221,10 +221,11 @@ web_fetch(url="https://help.aliyun.com/zh/model-studio/cherry-studio", maxChars=
 web_fetch(url="https://help.aliyun.com/zh/model-studio/chatbox", maxChars=10000)         # 🆕 Chatbox
 web_fetch(url="https://help.aliyun.com/zh/model-studio/cline", maxChars=10000)           # 🆕 Cline
 web_fetch(url="https://help.aliyun.com/zh/model-studio/qoder-agent", maxChars=10000)     # 🆕 Qoder
-web_fetch(url="https://help.aliyun.com/zh/model-studio/lingma-agent", maxChars=10000)    # 🆕 Lingma
+web_fetch(url="https://help.aliyun.com/zh/model-studio/lingma-agent", maxChars=10000)    # Qoder CN（原 Lingma）
 web_fetch(url="https://help.aliyun.com/zh/model-studio/kilo-cli", maxChars=10000)        # 🆕 Kilo CLI
 web_fetch(url="https://help.aliyun.com/zh/model-studio/first-call-to-image-and-video-api", maxChars=10000)  # 🆕 Postman
 web_fetch(url="https://help.aliyun.com/zh/model-studio/dify", maxChars=10000)            # 🆕 Dify
+web_fetch(url="https://help.aliyun.com/zh/model-studio/more-tools", maxChars=10000)      # 🆕 更多工具
 ```
 
 ### 第 2 步：提取关键信息
@@ -375,6 +376,17 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 
 **总计：约 95+ 个文件**
 
+### 🆕 v4.6 变更（2026-05-25）
+
+| 变更类型 | 内容 | 说明 |
+|---------|------|------|
+| 🆕 语言模型 | qwen3.7-max / qwen3.7-max-2026-05-20 | 新旗舰模型，1M上下文，256k思考预算 |
+| 🆕 第三方模型 | mimo-v2.5-pro | 新第三方模型，1M上下文 |
+| 🔄 客户端重命名 | Lingma → Qoder CN | 官方将 Lingma 更名为 Qoder CN（原 Lingma） |
+| 🆕 客户端文档 | 更多工具 (more-tools) | 新增 OpenAI/Anthropic 兼容端点配置文档 |
+| 🆕 图像模型 | qwen-image-edit-max/plus/edit | 新增千问图像编辑模型系列 |
+| 🆕 图像模型 | qwen-image-* 版本化模型 | qwen-image-2.0-pro-2026-03-03 等版本化模型 |
+
 ### 🆕 v4.5 变更（2026-05-18）
 
 | 变更类型 | 内容 | 说明 |
@@ -449,6 +461,17 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 ---
 
 ## 🔧 实战经验（从实际更新中积累）
+
+### 2026-05-25 周更发现
+
+1. **Qwen3.7-max 发布**：全新旗舰模型，1M 上下文窗口，64k 最大输出，256k 思考预算，支持 Function Calling、内置工具、结构化输出、批量调用。官方文档将 qwen3.7-max 对标 GPT-5.5、Claude Opus 4.7、Gemini 3.1 Pro。
+2. **mimo-v2.5-pro 新增**：第三方模型，1M 上下文，128K 最大输出，128K 思考预算，支持 Function Calling 和内置工具。
+3. **Lingma 更名为 Qoder CN**：官方客户端列表中将 "Lingma" 更名为 "Qoder CN（原 Lingma）"，URL 不变（/zh/model-studio/lingma-agent）。
+4. **更多工具页面新增**：/zh/model-studio/more-tools 新增，记录 Token Plan/Coding Plan/按量计费三种方式的 OpenAI/Anthropic 兼容端点配置。
+5. **千问图像编辑模型扩展**：image-model/ 页面新增 qwen-image-edit-max、qwen-image-edit-plus、qwen-image-edit 及对应版本化模型。
+6. **千问图像版本化模型**：qwen-image-2.0-pro-2026-03-03、qwen-image-2.0-2026-03-03、qwen-image-max-2025-12-30、qwen-image-plus-2026-01-09、qwen-image（基础版）等。
+7. **qwen3.6-max-preview 出现**：256k 上下文，64k 最大输出，128k 思考预算。
+8. **deepseek-v4-pro/flash 新增**：第三方模型，1M 上下文，384k 最大输出（共），支持思考模式。
 
 ### 2026-05-12 周更发现
 
