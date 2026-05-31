@@ -15,8 +15,8 @@ metadata:
 
 # 阿里云百炼文档研究 — 抓取与更新指南
 
-**版本**: v4.6
-**更新时间**: 2026-05-25
+**版本**: v4.7
+**更新时间**: 2026-06-01
 **适用场景**: 抓取阿里云百炼平台最新文档，生成结构化的本地 SKILL.md 文档
 
 ---
@@ -376,6 +376,12 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 
 **总计：约 95+ 个文件**
 
+### 🆕 v4.7 变更（2026-06-01）
+
+| 变更类型 | 内容 | 说明 |
+|---------|------|------|
+| 🔄 第三方模型 | MiniMax-M2.5 → MiniMax-M2.7 | 官方模型列表页已将 MiniMax-M2.5 更名为 MiniMax-M2.7（文本生成详情页仍显示 M2.5 参数，待官方同步） |
+
 ### 🆕 v4.6 变更（2026-05-25）
 
 | 变更类型 | 内容 | 说明 |
@@ -461,6 +467,13 @@ browser_navigate(url) → browser_console("document.querySelector('main').innerT
 ---
 
 ## 🔧 实战经验（从实际更新中积累）
+
+### 2026-06-01 周更发现
+
+1. **MiniMax-M2.7 更名**：官方模型列表页（/zh/model-studio/models）将 "MiniMax-M2.5" 更名为 "MiniMax-M2.7"，但文本生成详情页（/zh/model-studio/text-generation-model/）仍显示 MiniMax-M2.5 的参数（192k上下文、共32k最大输出）。两个页面尚未同步，可能是新版本即将上线。
+2. **模型列表页更新日期**：2026-05-21 19:37:25。文本生成页更新日期：2026-05-25 18:23:43。
+3. **视频生成页新增"首尾帧生视频，构建长视频"说明**：video-generate-edit-model/ 页面新增首尾帧串联构建长视频的推荐说明，推荐使用 wan2.7-i2v-2026-04-25。
+4. **qwen3.7-max 基准对标确认**：官方文本生成页确认 qwen3.7-max 对标 GPT-5.5、Claude Opus 4.7、Gemini 3.1 Pro。
 
 ### 2026-05-25 周更发现
 
